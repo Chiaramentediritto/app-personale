@@ -637,6 +637,10 @@ elif page == "Report Mensile":
         if c5.button(label, key=f"pay_{sid}_{year}_{month}"):
             toggle_paid(sid, year, month)
 
+         # dentro il loop for sid in student_ids:
+    rows = les_m[les_m.student_id == sid].to_dict("records")
+    st.write(f"DEBUG: {len(rows)} lezioni per {student_label(sid)} nel {month}/{year}")
+    
         # Scarica PDF
         rows = les_m[les_m.student_id == sid].to_dict("records")
         if rows and c6.download_button(
