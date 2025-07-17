@@ -1,20 +1,20 @@
 import streamlit as st
 
-# 🔐 PASSWORD
+# 🔐 LOGIN SEMPLICE (max 4 caratteri)
 def check_password():
     def password_entered():
-        if st.session_state["password"] == "8888":
+        if st.session_state["password"] == "4567":
             st.session_state["password_correct"] = True
-            del st.session_state["password"]  # nasconde dopo login
+            del st.session_state["password"]
         else:
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        st.text_input("🔐 Inserisci la password per accedere:", type="password", on_change=password_entered, key="password")
+        st.text_input("🔐 Inserisci la password per accedere:", type="password", max_chars=4, on_change=password_entered, key="password")
         st.stop()
     elif not st.session_state["password_correct"]:
-        st.text_input("🔐 Password errata, riprova:", type="password", on_change=password_entered, key="password")
-        st.warning("❌ Password errata.")
+        st.text_input("❌ Password errata, riprova:", type="password", max_chars=4, on_change=password_entered, key="password")
+        st.warning("Accesso negato.")
         st.stop()
 
 check_password()
