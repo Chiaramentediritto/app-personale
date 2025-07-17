@@ -10,10 +10,10 @@ def check_password():
             st.session_state["password_correct"] = False
 
     if "password_correct" not in st.session_state:
-        st.text_input("🔐 Inserisci la password per accedere:", type="password", max_chars=4, on_change=password_entered, key="password")
+        st.text_input("🔐 Inserisci la password per accedere:", type="password", max_chars=6, on_change=password_entered, key="password")
         st.stop()
     elif not st.session_state["password_correct"]:
-        st.text_input("❌ Password errata, riprova:", type="password", max_chars=4, on_change=password_entered, key="password")
+        st.text_input("❌ Password errata, riprova:", type="password", max_chars=6, on_change=password_entered, key="password")
         st.warning("Accesso negato.")
         st.stop()
 
