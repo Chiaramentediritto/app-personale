@@ -487,7 +487,7 @@ elif page == "Riassunti":
             rerun()
 
     # ── Elenco riassunti filtrato, con data formattata, toggle e delete
-    st.subheader("Elenco riassunti")
+        st.subheader("Elenco riassunti")
     df = summaries.copy()
 
     # Applica ricerca su titolo o studente
@@ -503,35 +503,38 @@ elif page == "Riassunti":
         df["dt"] = pd.to_datetime(df["date"])
         df = df.sort_values("dt", ascending=False)
 
-                for _, r in df.iterrows():
+        # Ciclo principale sui riassunti
+        for _, r in df.iterrows():
             c1, c2, c3, c4, c5, c6, c7 = st.columns([3, 2, 2, 2, 1, 1, 1])
+
             # Titolo e studente
-            c1.write(f"{r['title']} ({student_label(r['student_id']).split(' — ')[0]})")
-            
+            stud_label = student_label(r["student_id"]).split(" — ")[0]
+            c1.write(f"{r['title']} ({stud_label})")
+
             # Data originale formattata
             dt_obj = pd.to_datetime(r["date"])
             c2.write(dt_obj.strftime("%d/%m/%Y"))
-            
-            # Data di rilascio: controlliamo che esista e non sia NA
+
+            # Data di rilascio (con placeholder se mancante)
             rel_date = r.get("release_date", "")
             if pd.isna(rel_date) or rel_date == "":
                 c3.write("-")
             else:
-                try:
-                    rel_obj = pd.to_datetime(rel_date)
-                    c3.write(rel_obj.strftime("%d/%m/%Y"))
-                except Exception:
-                    c3.write("-")
-            
+                rel_obj = pd.to_datetime(rel_date)
+                c3.write(rel_obj.strftime("%d/%m/%Y"))
+
             # Prezzo
             c4.write(f"{r['price']:.2f} EUR")
+
             # Toggle Author (C/P)
             if c5.button(r["author"], key=f"auth_{r['id']}"):
                 toggle_summary_author(r["id"])
+
             # Toggle Pagato/Non pagato
             paid_label = "🟢" if r["paid"] else "🔴"
             if c6.button(paid_label, key=f"paid_sum_{r['id']}"):
                 toggle_summary_paid(r["id"])
+
             # Delete
             if c7.button("🗑", key=f"delsum_{r['id']}"):
                 idx = summaries[summaries.id == r["id"]].index
