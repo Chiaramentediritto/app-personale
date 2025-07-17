@@ -84,7 +84,7 @@ FILES = {
 COLUMNS = {
     "students":  ["id", "name", "hourly_rate", "note"],
     "lessons":   ["id", "student_id", "date", "duration_min", "amount"],
-    "summaries": ["id", "student_id", "date", "title", "price", "author", "paid"],
+    "summaries": ["id", "student_id", "date", "release_date", "title", "price", "author", "paid"],
     "payments":  ["student_id", "year", "month"],
      "day_checks": ["date", "checked"],
 }
@@ -204,6 +204,9 @@ summaries["author"] = summaries["author"].fillna("C")
 
 # assegna False a tutti i paid vuoti in summaries
 summaries["paid"] = summaries["paid"].fillna(False)
+
+#realese_date
+summaries["release_date"] = summaries.get("release_date", "")
 
 
 # ────────────────────────── SIDEBAR ────────────────────────────
@@ -439,17 +442,18 @@ elif page == "Riassunti":
 
     # ── Form per aggiungere riassunto
     with st.form(key="add_summary"):
-        # Creiamo la lista di ID ordinati per nome
         sorted_ids = students.sort_values("name")["id"].tolist()
-        sid = st.selectbox(
+        sid        = st.selectbox(
             "Studente",
             sorted_ids,
             format_func=student_label,
-        )     
-        new_name = st.text_input("Oppure nuovo studente")
-        d        = st.date_input("Data", date.today(), key="sum_date")
-        title    = st.text_input("Titolo del riassunto", key="sum_title")
-        price    = st.number_input(
+            key="sum_student"
+        )
+        new_name       = st.text_input("Oppure nuovo studente", key="sum_new_student")
+        d              = st.date_input("Data", date.today(), key="sum_date")
+        release_date   = st.date_input("Data di rilascio", date.today(), key="sum_release_date")
+        title          = st.text_input("Titolo del riassunto", key="sum_title")
+        price          = st.number_input(
             "Prezzo (€)",
             min_value=0.0,
             step=0.5,
@@ -457,27 +461,26 @@ elif page == "Riassunti":
             key="sum_price"
         )
         if st.form_submit_button("Aggiungi riassunto"):
-            # crea nuovo studente se richiesto
             if new_name:
                 new_sid = new_id()
                 students.loc[len(students)] = {
-                    "id": new_sid,
-                    "name": new_name,
-                    "hourly_rate": 0.0
+                    "id":       new_sid,
+                    "name":     new_name,
+                    "hourly_rate": 0.0,
+                    "note":     ""  # o qualunque default
                 }
                 save_csv(students, FILES["students"])
                 sid = new_sid
-            else:
-                sid = sid_exist
-
+            # aggiungo release_date
             summaries.loc[len(summaries)] = {
-                "id": new_id(),
-                "student_id": sid,
-                "date": d.isoformat(),
-                "title": title,
-                "price": price,
-                "author": "C",
-                "paid": False
+                "id":           new_id(),
+                "student_id":   sid,
+                "date":         d.isoformat(),
+                "release_date": release_date.isoformat(),
+                "title":        title,
+                "price":        price,
+                "author":       "C",
+                "paid":         False
             }
             save_csv(summaries, FILES["summaries"])
             st.success("Riassunto salvato!")
@@ -501,27 +504,32 @@ elif page == "Riassunti":
         df = df.sort_values("dt", ascending=False)
 
         for _, r in df.iterrows():
-            c1, c2, c3, c4, c5, c6 = st.columns([3, 2, 2, 1, 1, 1])
+            # ora abbiamo 7 colonne: titolo, data, rilascio, prezzo, author, paid, delete
+            c1, c2, c3, c4, c5, c6, c7 = st.columns([3, 2, 2, 2, 1, 1, 1])
             # Titolo e studente
             c1.write(f"{r['title']} ({student_label(r['student_id']).split(' — ')[0]})")
-            # Data formattata in gg/mm/aaaa
+            # Data originale formattata
             dt_obj = pd.to_datetime(r["date"])
             c2.write(dt_obj.strftime("%d/%m/%Y"))
+            # Data di rilascio formattata
+            rel_obj = pd.to_datetime(r["release_date"])
+            c3.write(rel_obj.strftime("%d/%m/%Y"))
             # Prezzo
-            c3.write(f"{r['price']:.2f} EUR")
+            c4.write(f"{r['price']:.2f} EUR")
             # Toggle Author (C/P)
-            if c4.button(r["author"], key=f"auth_{r['id']}", help="C = Chiara, P = Pierangelo"):
+            if c5.button(r["author"], key=f"auth_{r['id']}", help="C = Chiara, P = Pierangelo"):
                 toggle_summary_author(r["id"])
             # Toggle Pagato/Non pagato
             paid_label = "🟢" if r["paid"] else "🔴"
-            if c5.button(paid_label, key=f"paid_sum_{r['id']}"):
+            if c6.button(paid_label, key=f"paid_sum_{r['id']}"):
                 toggle_summary_paid(r["id"])
             # Delete
-            if c6.button("🗑", key=f"delsum_{r['id']}"):
+            if c7.button("🗑", key=f"delsum_{r['id']}"):
                 idx = summaries[summaries.id == r["id"]].index
                 summaries.drop(index=idx, inplace=True)
                 save_csv(summaries, FILES["summaries"])
                 rerun()
+
 
 
 
