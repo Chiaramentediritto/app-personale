@@ -1,9 +1,9 @@
 import streamlit as st
 
-# 🔐 LOGIN SEMPLICE (max 4 caratteri)
+# 🔐 LOGIN SEMPLICE (max 6 caratteri)
 def check_password():
     def password_entered():
-        if st.session_state["password"] == "4567":
+        if st.session_state["password"] == "180217":
             st.session_state["password_correct"] = True
             del st.session_state["password"]
         else:
