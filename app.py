@@ -439,11 +439,13 @@ elif page == "Riassunti":
 
     # ── Form per aggiungere riassunto
     with st.form(key="add_summary"):
-        sid_exist = st.selectbox(
-            "Studente esistente",
-            students.id,
-            format_func=student_label
-        )
+        # Creiamo la lista di ID ordinati per nome
+        sorted_ids = students.sort_values("name")["id"].tolist()
+        sid = st.selectbox(
+            "Studente",
+            sorted_ids,
+            format_func=student_label,
+        )     
         new_name = st.text_input("Oppure nuovo studente")
         d        = st.date_input("Data", date.today(), key="sum_date")
         title    = st.text_input("Titolo del riassunto", key="sum_title")
