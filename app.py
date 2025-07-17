@@ -503,21 +503,30 @@ elif page == "Riassunti":
         df["dt"] = pd.to_datetime(df["date"])
         df = df.sort_values("dt", ascending=False)
 
-        for _, r in df.iterrows():
-            # ora abbiamo 7 colonne: titolo, data, rilascio, prezzo, author, paid, delete
+                for _, r in df.iterrows():
             c1, c2, c3, c4, c5, c6, c7 = st.columns([3, 2, 2, 2, 1, 1, 1])
             # Titolo e studente
             c1.write(f"{r['title']} ({student_label(r['student_id']).split(' — ')[0]})")
+            
             # Data originale formattata
             dt_obj = pd.to_datetime(r["date"])
             c2.write(dt_obj.strftime("%d/%m/%Y"))
-            # Data di rilascio formattata
-            rel_obj = pd.to_datetime(r["release_date"])
-            c3.write(rel_obj.strftime("%d/%m/%Y"))
+            
+            # Data di rilascio: controlliamo che esista e non sia NA
+            rel_date = r.get("release_date", "")
+            if pd.isna(rel_date) or rel_date == "":
+                c3.write("-")
+            else:
+                try:
+                    rel_obj = pd.to_datetime(rel_date)
+                    c3.write(rel_obj.strftime("%d/%m/%Y"))
+                except Exception:
+                    c3.write("-")
+            
             # Prezzo
             c4.write(f"{r['price']:.2f} EUR")
             # Toggle Author (C/P)
-            if c5.button(r["author"], key=f"auth_{r['id']}", help="C = Chiara, P = Pierangelo"):
+            if c5.button(r["author"], key=f"auth_{r['id']}"):
                 toggle_summary_author(r["id"])
             # Toggle Pagato/Non pagato
             paid_label = "🟢" if r["paid"] else "🔴"
@@ -529,6 +538,7 @@ elif page == "Riassunti":
                 summaries.drop(index=idx, inplace=True)
                 save_csv(summaries, FILES["summaries"])
                 rerun()
+
 
 
 
