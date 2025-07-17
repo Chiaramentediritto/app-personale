@@ -641,7 +641,7 @@ elif page == "Report Mensile":
         rows = les_m[les_m.student_id == sid].to_dict("records")
         if rows and c6.download_button(
                 "📄",
-                data=generate_invoice_pdf(name, rows, year, mounth, l_tot),
+                data=generate_invoice_pdf(name, rows, year, month, l_tot),
                 file_name=f"{name}_{year}_{month:02d}.pdf",
                 mime="application/pdf",
                 key=f"pdf_{sid}_{year}_{month}"
