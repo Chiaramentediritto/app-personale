@@ -614,6 +614,12 @@ elif page == "Report Mensile":
         ]
 
 
+        
+
+
+
+
+        
             for sid in student_ids:
             name  = student_label(sid).split(" — ")[0]
             l_tot = tot_less.get(sid, 0.0)
