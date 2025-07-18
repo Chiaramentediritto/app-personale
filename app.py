@@ -615,35 +615,38 @@ elif page == "Report Mensile":
 
 
     for sid in student_ids:
-        name  = student_label(sid).split(" — ")[0]
-        l_tot = tot_less.get(sid, 0.0)
-        s_tot = tot_sum.get(sid, 0.0)
-        grand = l_tot + s_tot
+    name  = student_label(sid).split(" — ")[0]
+    l_tot = tot_less.get(sid, 0.0)
+    s_tot = tot_sum.get(sid, 0.0)
+    grand = l_tot + s_tot
 
-        # sei colonne: c1–c4 testo, c5 toggle, c6 PDF
-        c1, c2, c3, c4, c5, c6 = st.columns([3, 2, 2, 2, 1, 1])
-        c1.write(f"**{name}**")
-        c2.write(f"Lezioni: {l_tot:.2f} EUR")
-        c3.write(f"Riassunti: {s_tot:.2f} EUR")
-        c4.write(f"**Totale: {grand:.2f} EUR**")
+    # Debug: quante lezioni ha trovato il filtro mese/anno
+    rows = les_m[les_m.student_id == sid].to_dict("records")
+    st.write(f"DEBUG: {len(rows)} lezioni per {name} nel {month}/{year}")
 
-        # Toggle Pagato
-        paid = not payments[
-            (payments.student_id == sid)
-            & (payments.year == year)
-            & (payments.month == month)
-        ].empty
-        label = "🟢" if paid else "🔴"
-        if c5.button(label, key=f"pay_{sid}_{year}_{month}"):
-            toggle_paid(sid, year, month)
-   
-        # Scarica PDF
-        rows = les_m[les_m.student_id == sid].to_dict("records")
-        if rows and c6.download_button(
-                "📄",
-                data=generate_invoice_pdf(name, rows, year, month, l_tot),
-                file_name=f"{name}_{year}_{month:02d}.pdf",
-                mime="application/pdf",
-                key=f"pdf_{sid}_{year}_{month}"
-            ):
-            pass
+    # sei colonne: c1–c4 testo, c5 toggle, c6 PDF
+    c1, c2, c3, c4, c5, c6 = st.columns([3, 2, 2, 2, 1, 1])
+    c1.write(f"**{name}**")
+    c2.write(f"Lezioni: {l_tot:.2f} EUR")
+    c3.write(f"Riassunti: {s_tot:.2f} EUR")
+    c4.write(f"**Totale: {grand:.2f} EUR**")
+
+    # Toggle Pagato
+    paid = not payments[
+        (payments.student_id == sid)
+        & (payments.year == year)
+        & (payments.month == month)
+    ].empty
+    label = "🟢" if paid else "🔴"
+    if c5.button(label, key=f"pay_{sid}_{year}_{month}"):
+        toggle_paid(sid, year, month)
+
+    # Scarica PDF
+    if rows and c6.download_button(
+        "📄",
+        data=generate_invoice_pdf(name, rows, year, month, l_tot),
+        file_name=f"{name}_{year}_{month:02d}.pdf",
+        mime="application/pdf",
+        key=f"pdf_{sid}_{year}_{month}"
+    ):
+        pass
