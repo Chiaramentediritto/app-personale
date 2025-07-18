@@ -556,8 +556,18 @@ elif page == "Report Mensile":
     st.header("Report Mensile")
     today = date.today()
     cy, cm = st.columns(2)
-    year  = cy.selectbox("Anno", list(range(today.year, 2019, -1)), index=0)
-    month = cm.selectbox("Mese", list(range(1, 13)), index=today.month - 1)
+    year = cy.selectbox(
+        "Anno",
+        list(range(today.year, 2019, -1)),
+        index=0,
+        key="report_year"
+    )
+    month = cm.selectbox(
+        "Mese",
+        list(range(1, 13)),
+        index=today.month - 1,
+        key="report_month"
+    )
 
     # Filtra dati per mese/anno
     les_m = lessons[
@@ -574,8 +584,8 @@ elif page == "Report Mensile":
         st.stop()
 
     # Totali globali del mese
-    tot_less_glob = les_m.groupby("student_id")["amount"].sum().sum()
-    tot_sum_glob  = sum_m.groupby("student_id")["price"].sum().sum()
+    tot_less_glob  = les_m["amount"].sum()
+    tot_sum_glob   = sum_m["price"].sum()
     tot_month_glob = tot_less_glob + tot_sum_glob
     st.markdown(
         f"<div style='border:1px solid #ddd; border-radius:6px; "
@@ -594,18 +604,21 @@ elif page == "Report Mensile":
 
     # Dettaglio per studente
     st.subheader(f"Dettaglio {month:02d}/{year}")
-    # calcola totali per studente
-    tot_less = les_m.groupby("student_id")["amount"].sum()
-    tot_sum  = sum_m.groupby("student_id")["price"].sum()
+
+    # Calcola totali per studente
+    tot_less   = les_m.groupby("student_id")["amount"].sum()
+    tot_sum    = sum_m.groupby("student_id")["price"].sum()
     student_ids = sorted(
-    set(tot_less.index).union(tot_sum.index),
-    key=lambda sid: student_label(sid).split(" — ")[0].lower()
-)
-     # ── BARRA DI RICERCA STUDENTE
+        set(tot_less.index).union(tot_sum.index),
+        key=lambda sid: student_label(sid).split(" — ")[0].lower()
+    )
+
+    # ── BARRA DI RICERCA STUDENTE
     search_rep = st.text_input(
         "🔍 Cerca studente",
         value="",
-        help="Digita parte del nome per filtrare il report"
+        help="Digita parte del nome per filtrare il report",
+        key="search_report"
     )
     if search_rep:
         student_ids = [
@@ -613,46 +626,40 @@ elif page == "Report Mensile":
             if search_rep.lower() in student_label(sid).lower()
         ]
 
+    # ── Ciclo sul dettaglio per ciascun studente
+    for sid in student_ids:
+        name  = student_label(sid).split(" — ")[0]
+        l_tot = tot_less.get(sid, 0.0)
+        s_tot = tot_sum.get(sid, 0.0)
+        grand = l_tot + s_tot
 
-        
+        # Debug: quante lezioni per questo studente e mese
+        rows = les_m[les_m.student_id == sid].to_dict("records")
+        st.write(f"DEBUG: {len(rows)} lezioni per {name} nel {month}/{year}")
 
+        # Layout delle colonne: c1–c4 testo, c5 toggle, c6 PDF
+        c1, c2, c3, c4, c5, c6 = st.columns([3, 2, 2, 2, 1, 1])
+        c1.write(f"**{name}**")
+        c2.write(f"Lezioni: {l_tot:.2f} EUR")
+        c3.write(f"Riassunti: {s_tot:.2f} EUR")
+        c4.write(f"**Totale: {grand:.2f} EUR**")
 
+        # Toggle Pagato
+        paid = not payments[
+            (payments.student_id == sid) &
+            (payments.year == year) &
+            (payments.month == month)
+        ].empty
+        label = "🟢" if paid else "🔴"
+        if c5.button(label, key=f"pay_{sid}_{year}_{month}"):
+            toggle_paid(sid, year, month)
 
-
-        
-            for sid in student_ids:
-            name  = student_label(sid).split(" — ")[0]
-            l_tot = tot_less.get(sid, 0.0)
-            s_tot = tot_sum.get(sid, 0.0)
-            grand = l_tot + s_tot
-
-            # DEBUG: quante lezioni per questo studente e mese
-            rows = les_m[les_m.student_id == sid].to_dict("records")
-            st.write(f"DEBUG: {len(rows)} lezioni per {name} nel {month}/{year}")
-
-            # sei colonne: c1–c4 testo, c5 toggle, c6 PDF
-            c1, c2, c3, c4, c5, c6 = st.columns([3, 2, 2, 2, 1, 1])
-            c1.write(f"**{name}**")
-            c2.write(f"Lezioni: {l_tot:.2f} EUR")
-            c3.write(f"Riassunti: {s_tot:.2f} EUR")
-            c4.write(f"**Totale: {grand:.2f} EUR**")
-
-            # Toggle Pagato
-            paid = not payments[
-                (payments.student_id == sid)
-                & (payments.year == year)
-                & (payments.month == month)
-            ].empty
-            label = "🟢" if paid else "🔴"
-            if c5.button(label, key=f"pay_{sid}_{year}_{month}"):
-                toggle_paid(sid, year, month)
-
-            # Scarica PDF
-            if rows and c6.download_button(
-                "📄",
-                data=generate_invoice_pdf(name, rows, year, month, l_tot),
-                file_name=f"{name}_{year}_{month:02d}.pdf",
-                mime="application/pdf",
-                key=f"pdf_{sid}_{year}_{month}"
-            ):
-                pass
+        # Scarica PDF
+        if rows and c6.download_button(
+            "📄",
+            data=generate_invoice_pdf(name, rows, year, month, l_tot),
+            file_name=f"{name}_{year}_{month:02d}.pdf",
+            mime="application/pdf",
+            key=f"pdf_{sid}_{year}_{month}"
+        ):
+            pass
