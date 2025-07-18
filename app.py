@@ -114,26 +114,30 @@ def toggle_paid(sid, year, month):
     save_csv(payments, FILES["payments"])
     rerun()
 
+# Ricreo la funzione `generate_invoice_pdf` con font standard compatibile con Streamlit Cloud
+from fpdf import FPDF
+
 def generate_invoice_pdf(name, rows, year, month, total):
     pdf = FPDF(format="A4")
     pdf.add_page()
-    pdf.set_font("Arial", size=14)
+
+    pdf.set_font("Helvetica", size=14)
     pdf.cell(0, 10, txt=f"Report lezioni – {name} [{month:02d}/{year}]", ln=True, align="C")
     pdf.ln(5)
 
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("Helvetica", size=12)
     if not rows:
         pdf.cell(0, 8, txt="Nessuna lezione registrata.", ln=True)
     else:
         for r in rows:
             data = r.get("date", "")
-            dur  = int(r.get("duration_min", 0))
-            amt  = r.get("amount", 0.0)
+            dur = int(r.get("duration_min", 0))
+            amt = r.get("amount", 0.0)
             line = f"{data}   |   {dur} min   |   {amt:.2f} €"
             pdf.cell(0, 8, txt=line, ln=True)
 
     pdf.ln(5)
-    pdf.set_font("Arial", style="B", size=12)
+    pdf.set_font("Helvetica", style="B", size=12)
     pdf.cell(0, 10, txt=f"Totale mese: {total:.2f} €", ln=True, align="R")
 
     return pdf.output(dest="S").encode("latin-1")
