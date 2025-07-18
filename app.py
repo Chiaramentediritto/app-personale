@@ -114,31 +114,42 @@ def toggle_paid(sid, year, month):
     save_csv(payments, FILES["payments"])
     rerun()
 
-# Ricreo la funzione `generate_invoice_pdf` con font standard compatibile con Streamlit Cloud
-from fpdf import FPDF
+import unicodedata
+
+def safe_text(text):
+    """
+    Rimuove o sostituisce i caratteri non compatibili con 'latin-1'.
+    """
+    if not isinstance(text, str):
+        text = str(text)
+    return unicodedata.normalize('NFKD', text).encode('latin-1', 'ignore').decode('latin-1')
 
 def generate_invoice_pdf(name, rows, year, month, total):
+    from fpdf import FPDF
+
     pdf = FPDF(format="A4")
     pdf.add_page()
 
     pdf.set_font("Helvetica", size=14)
-    pdf.cell(0, 10, txt=f"Report lezioni – {name} [{month:02d}/{year}]", ln=True, align="C")
+
+    title = f"Report lezioni – {name} [{month:02d}/{year}]"
+    pdf.cell(0, 10, txt=safe_text(title), ln=True, align="C")
     pdf.ln(5)
 
     pdf.set_font("Helvetica", size=12)
     if not rows:
-        pdf.cell(0, 8, txt="Nessuna lezione registrata.", ln=True)
+        pdf.cell(0, 8, txt=safe_text("Nessuna lezione registrata."), ln=True)
     else:
         for r in rows:
             data = r.get("date", "")
             dur = int(r.get("duration_min", 0))
             amt = r.get("amount", 0.0)
             line = f"{data}   |   {dur} min   |   {amt:.2f} €"
-            pdf.cell(0, 8, txt=line, ln=True)
+            pdf.cell(0, 8, txt=safe_text(line), ln=True)
 
     pdf.ln(5)
     pdf.set_font("Helvetica", style="B", size=12)
-    pdf.cell(0, 10, txt=f"Totale mese: {total:.2f} €", ln=True, align="R")
+    pdf.cell(0, 10, txt=safe_text(f"Totale mese: {total:.2f} €"), ln=True, align="R")
 
     return pdf.output(dest="S").encode("latin-1")
 
