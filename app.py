@@ -566,7 +566,7 @@ elif page == "Riassunti":
 elif page == "Report Mensile":
     st.header("Report Mensile")
 
-    # ── Selettori Anno/Mese ─────────────────────────────────────────
+    # ── Selettori Anno/Mese
     today = date.today()
     cy, cm = st.columns(2)
     year = cy.selectbox(
@@ -582,7 +582,7 @@ elif page == "Report Mensile":
         key="report_month"
     )
 
-    # ── Filtra dati per mese/anno ────────────────────────────────────
+    # ── Filtra dati
     les_m = lessons[
         (pd.to_datetime(lessons["date"]).dt.year  == year) &
         (pd.to_datetime(lessons["date"]).dt.month == month)
@@ -596,7 +596,7 @@ elif page == "Report Mensile":
         st.info("Nessun dato per il mese selezionato.")
         st.stop()
 
-    # ── Totali globali ────────────────────────────────────────────────
+    # ── Totali globali
     tot_less_glob  = les_m["amount"].sum()
     tot_sum_glob   = sum_m["price"].sum()
     tot_month_glob = tot_less_glob + tot_sum_glob
@@ -610,11 +610,11 @@ elif page == "Report Mensile":
         unsafe_allow_html=True
     )
 
-    # ── Link fattura unico ───────────────────────────────────────────
+    # ── Link fattura
     st.markdown(f"[📄 Vai alla fattura]({INVOICE_BASE_URL})", unsafe_allow_html=True)
     st.write("")
 
-    # ── Dettaglio per studente ───────────────────────────────────────
+    # ── Dettaglio e ricerca
     st.subheader(f"Dettaglio {month:02d}/{year}")
     search_rep = st.text_input(
         "🔍 Cerca studente",
@@ -623,9 +623,9 @@ elif page == "Report Mensile":
         help="Digita parte del nome per filtrare"
     )
 
-    # ── Calcola totali per studente ──────────────────────────────────
-    tot_less = les_m.groupby("student_id")["amount"].sum()
-    tot_sum  = sum_m.groupby("student_id")["price"].sum()
+    # ── Totali per studente
+    tot_less   = les_m.groupby("student_id")["amount"].sum()
+    tot_sum    = sum_m.groupby("student_id")["price"].sum()
     student_ids = sorted(
         set(tot_less.index).union(tot_sum.index),
         key=lambda sid: student_label(sid).split(" — ")[0].lower()
@@ -636,13 +636,13 @@ elif page == "Report Mensile":
             if search_rep.lower() in student_label(sid).lower()
         ]
 
-    # ── Ciclo di dettaglio per ciascun studente ─────────────────────
+    # ── Ciclo dettagli studenti
     for sid in student_ids:
-        name   = student_label(sid).split(" — ")[0]
-        l_tot  = tot_less.get(sid, 0.0)
-        s_tot  = tot_sum.get(sid, 0.0)
-        grand  = l_tot + s_tot
-        rows   = les_m[les_m["student_id"] == sid].to_dict("records")
+        name  = student_label(sid).split(" — ")[0]
+        l_tot = tot_less.get(sid, 0.0)
+        s_tot = tot_sum.get(sid, 0.0)
+        grand = l_tot + s_tot
+        rows  = les_m[les_m["student_id"] == sid].to_dict("records")
 
         c1, c2, c3, c4, c5, c6 = st.columns([3, 2, 2, 2, 1, 1])
         c1.write(f"**{name}**")
@@ -669,4 +669,3 @@ elif page == "Report Mensile":
             key=f"pdf_{sid}_{year}_{month}"
         ):
             pass
-
