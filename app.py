@@ -136,29 +136,40 @@ def toggle_paid(sid, year, month):
     rerun()
 
 
-def generate_invoice_pdf(name, lessons_rows, year, month, total):
-    pdf = FPDF()
-    pdf.set_auto_page_break(True, margin=15)
+from fpdf import FPDF
+
+def generate_invoice_pdf(name, rows, year, month, total):
+    """
+    Genera un PDF con l’elenco delle lezioni per uno studente in un dato mese.
+    """
+    pdf = FPDF(format="A4")
     pdf.add_page()
-    pdf.set_font("Helvetica", "B", 14)
-    pdf.cell(0, 10, f"Report lezioni - {name}", ln=1, align="C")
-    pdf.set_font("Helvetica", size=11)
-    pdf.cell(0, 8, f"Mese: {month:02d}/{year}", ln=1)
-    pdf.ln(4)
-    for r in lessons_rows:
-        pdf.cell(
-            0,
-            7,
-            f"{r['date']}  |  {int(r['duration_min'])} min  |  {r['amount']:.2f} EUR",
-            ln=1,
-        )
-    pdf.ln(4)
-    pdf.set_font("Helvetica", "B", 12)
-    pdf.cell(0, 8, f"Totale lezioni: {total:.2f} EUR", ln=1)
-    out = pdf.output(dest="S")
-    if isinstance(out, bytearray):
-        out = bytes(out)
-    return out
+
+    # Carica un font Unicode (DejaVu Sans, messolo in /mnt/data)
+    pdf.add_font("DejaVu", "", "/mnt/data/DejaVuSans.ttf", uni=True)
+    pdf.set_font("DejaVu", size=14)
+
+    # Titolo
+    pdf.cell(0, 10, txt=f"Report lezioni – {name} [{month:02d}/{year}]", ln=True, align="C")
+    pdf.ln(5)
+
+    pdf.set_font("DejaVu", size=12)
+    if not rows:
+        pdf.cell(0, 8, txt="Nessuna lezione registrata.", ln=True)
+    else:
+        for r in rows:
+            data = r.get("date", "")
+            dur  = int(r.get("duration_min", 0))
+            amt  = r.get("amount", 0.0)
+            line = f"{data}   |   {dur} min   |   {amt:.2f} €"
+            pdf.cell(0, 8, txt=line, ln=True)
+
+    pdf.ln(5)
+    pdf.set_font("DejaVu", style="B", size=12)
+    pdf.cell(0, 10, txt=f"Totale mese: {total:.2f} €", ln=True, align="R")
+
+    return pdf.output(dest="S").encode("latin-1")
+
 
 
 def toggle_summary_author(sid):
