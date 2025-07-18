@@ -136,7 +136,6 @@ def toggle_paid(sid, year, month):
     rerun()
 
 
-from fpdf import FPDF
 
 def generate_invoice_pdf(name, rows, year, month, total):
     """
