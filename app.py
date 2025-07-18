@@ -19,7 +19,6 @@ def check_password():
 
 check_password()
 
-import streamlit as st
 import pandas as pd
 import uuid
 from datetime import date
@@ -28,9 +27,6 @@ from fpdf import FPDF
 import base64
 
 def draw_home_background(img_path: str, width_px: int = 700, opacity: float = 0.05):
-    """
-    Mostra l’immagine in basso a destra con opacità ridotta (watermark).
-    """
     with open(img_path, "rb") as f:
         data = base64.b64encode(f.read()).decode()
     st.markdown(
@@ -45,7 +41,6 @@ def draw_home_background(img_path: str, width_px: int = 700, opacity: float = 0.
             pointer-events: none;
             z-index: 0;
           }}
-          /* Assicuriamoci che il resto del contenuto stia sopra */
           .main > div:nth-child(1) {{
             position: relative;
             z-index: 1;
@@ -56,20 +51,12 @@ def draw_home_background(img_path: str, width_px: int = 700, opacity: float = 0.
         unsafe_allow_html=True,
     )
 
-
-
-
-
-
-# ───────────────────────── CONFIGURAZIONE FATTURA ────────────────────────────
-# Url base che usi per il link "Fattura"
 INVOICE_BASE_URL = (
     "https://asit.studiodigitale.cloud/wt00014499/login.sto"
     "?Login_Service=https%3A%2F%2Fasit.studiodigitale.cloud%2Fwt00014499%2Findex.sto"
     "&StwTokenSel=1123321717211031&utentebak=|wt00014499"
 )
 
-# ───────────────────────── CONFIG ────────────────────────────
 st.set_page_config(page_title="Tutor Manager", layout="centered")
 APP_DIR = Path(__file__).parent
 
@@ -78,7 +65,7 @@ FILES = {
     "lessons":   APP_DIR / "lessons.csv",
     "summaries": APP_DIR / "summaries.csv",
     "payments":  APP_DIR / "payments.csv",
-     "day_checks": APP_DIR / "day_checks.csv",
+    "day_checks": APP_DIR / "day_checks.csv",
 }
 
 COLUMNS = {
@@ -86,11 +73,9 @@ COLUMNS = {
     "lessons":   ["id", "student_id", "date", "duration_min", "amount"],
     "summaries": ["id", "student_id", "date", "release_date", "title", "price", "author", "paid"],
     "payments":  ["student_id", "year", "month"],
-     "day_checks": ["date", "checked"],
+    "day_checks": ["date", "checked"],
 }
 
-
-# ────────────────────────── UTILS ─────────────────────────────
 def load_csv(path: Path, cols: list):
     if path.exists():
         df = pd.read_csv(path)
@@ -101,14 +86,11 @@ def load_csv(path: Path, cols: list):
         return df[cols]
     return pd.DataFrame(columns=cols)
 
-
 def save_csv(df: pd.DataFrame, path: Path):
     df.to_csv(path, index=False)
 
-
 def new_id():
     return uuid.uuid4().hex[:8]
-
 
 def student_label(sid):
     row = students[students["id"] == sid]
@@ -117,15 +99,12 @@ def student_label(sid):
     r = row.iloc[0]
     return f"{r['name']} — {r['hourly_rate']:.2f} EUR/h"
 
-
 def rerun():
     try:
         st.rerun()
     except AttributeError:
         st.experimental_rerun()
 
-
-# ───────────────────────── ADVANCED ────────────────────────────
 def toggle_paid(sid, year, month):
     mask = (payments.student_id == sid) & (payments.year == year) & (payments.month == month)
     if payments.loc[mask].empty:
@@ -135,24 +114,14 @@ def toggle_paid(sid, year, month):
     save_csv(payments, FILES["payments"])
     rerun()
 
-
-
 def generate_invoice_pdf(name, rows, year, month, total):
-    """
-    Genera un PDF con l’elenco delle lezioni per uno studente in un dato mese.
-    """
     pdf = FPDF(format="A4")
     pdf.add_page()
-
-    # Carica un font Unicode (DejaVu Sans, messolo in /mnt/data)
-    pdf.add_font("DejaVu", "", "/mnt/data/DejaVuSans.ttf", uni=True)
-    pdf.set_font("DejaVu", size=14)
-
-    # Titolo
+    pdf.set_font("Arial", size=14)
     pdf.cell(0, 10, txt=f"Report lezioni – {name} [{month:02d}/{year}]", ln=True, align="C")
     pdf.ln(5)
 
-    pdf.set_font("DejaVu", size=12)
+    pdf.set_font("Arial", size=12)
     if not rows:
         pdf.cell(0, 8, txt="Nessuna lezione registrata.", ln=True)
     else:
@@ -164,10 +133,11 @@ def generate_invoice_pdf(name, rows, year, month, total):
             pdf.cell(0, 8, txt=line, ln=True)
 
     pdf.ln(5)
-    pdf.set_font("DejaVu", style="B", size=12)
+    pdf.set_font("Arial", style="B", size=12)
     pdf.cell(0, 10, txt=f"Totale mese: {total:.2f} €", ln=True, align="R")
 
     return pdf.output(dest="S").encode("latin-1")
+
 
 
 
