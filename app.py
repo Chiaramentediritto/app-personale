@@ -555,23 +555,23 @@ elif page == "Riassunti":
 elif page == "Report Mensile":
     st.header("Report Mensile")
 
-    # ── Selettori Anno/Mese con key univoche
+    # ── Selettori Anno/Mese ─────────────────────────────────────────
     today = date.today()
-    col_year, col_month = st.columns(2)
-    year = col_year.selectbox(
+    cy, cm = st.columns(2)
+    year = cy.selectbox(
         "Anno",
         options=list(range(today.year, 2019, -1)),
         index=0,
         key="report_year"
     )
-    month = col_month.selectbox(
+    month = cm.selectbox(
         "Mese",
         options=list(range(1, 13)),
         index=today.month - 1,
         key="report_month"
     )
 
-    # ── Filtra i dati
+    # ── Filtra dati per mese/anno ────────────────────────────────────
     les_m = lessons[
         (pd.to_datetime(lessons["date"]).dt.year  == year) &
         (pd.to_datetime(lessons["date"]).dt.month == month)
@@ -585,7 +585,7 @@ elif page == "Report Mensile":
         st.info("Nessun dato per il mese selezionato.")
         st.stop()
 
-    # ── Totali globali
+    # ── Totali globali ────────────────────────────────────────────────
     tot_less_glob  = les_m["amount"].sum()
     tot_sum_glob   = sum_m["price"].sum()
     tot_month_glob = tot_less_glob + tot_sum_glob
@@ -599,11 +599,11 @@ elif page == "Report Mensile":
         unsafe_allow_html=True
     )
 
-    # ── Link alla fattura
+    # ── Link fattura unico ───────────────────────────────────────────
     st.markdown(f"[📄 Vai alla fattura]({INVOICE_BASE_URL})", unsafe_allow_html=True)
-    st.write("")  # piccolo spacer
+    st.write("")
 
-    # ── Titolo dettaglio e ricerca studente
+    # ── Dettaglio per studente ───────────────────────────────────────
     st.subheader(f"Dettaglio {month:02d}/{year}")
     search_rep = st.text_input(
         "🔍 Cerca studente",
@@ -612,7 +612,7 @@ elif page == "Report Mensile":
         help="Digita parte del nome per filtrare"
     )
 
-    # ── Totali per studente
+    # ── Calcola totali per studente ──────────────────────────────────
     tot_less = les_m.groupby("student_id")["amount"].sum()
     tot_sum  = sum_m.groupby("student_id")["price"].sum()
     student_ids = sorted(
@@ -625,13 +625,13 @@ elif page == "Report Mensile":
             if search_rep.lower() in student_label(sid).lower()
         ]
 
-    # ── Ciclo di dettaglio per ciascun studente
+    # ── Ciclo di dettaglio per ciascun studente ─────────────────────
     for sid in student_ids:
         name   = student_label(sid).split(" — ")[0]
         l_tot  = tot_less.get(sid, 0.0)
         s_tot  = tot_sum.get(sid, 0.0)
         grand  = l_tot + s_tot
-        rows   = les_m[les_m.student_id == sid].to_dict("records")
+        rows   = les_m[les_m["student_id"] == sid].to_dict("records")
 
         c1, c2, c3, c4, c5, c6 = st.columns([3, 2, 2, 2, 1, 1])
         c1.write(f"**{name}**")
@@ -639,7 +639,7 @@ elif page == "Report Mensile":
         c3.write(f"Riassunti: {s_tot:.2f} EUR")
         c4.write(f"**Totale: {grand:.2f} EUR**")
 
-        # Toggle pagato
+        # Toggle Pagato
         paid = not payments[
             (payments.student_id == sid) &
             (payments.year       == year) &
@@ -649,7 +649,7 @@ elif page == "Report Mensile":
         if c5.button(label, key=f"pay_{sid}_{year}_{month}"):
             toggle_paid(sid, year, month)
 
-        # Download PDF (solo se ci sono lezioni)
+        # Scarica PDF
         if rows and c6.download_button(
             "📄",
             data=generate_invoice_pdf(name, rows, year, month, l_tot),
@@ -658,3 +658,4 @@ elif page == "Report Mensile":
             key=f"pdf_{sid}_{year}_{month}"
         ):
             pass
+
