@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "chiaradirittoapp",
+  "private_key_id": "03541a18e107c594ccc55ec649471de6b9fa8edb",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCv6fTHIRNftxRM\nIkUsWW4WfwjiuJJe+3Z28AuJJCQO0IoDnboKsXbPrKB7Mfy+xoixJC00y2LXak4S\nB6W682yv0IYgVaL5/4OCOcaR63j3etwDT7sMsuVioZLBYBB5VeBfUi1cbUtCRy0a\n73GP7MPMWwUtmvjJMEBN9XPXTdWs4wAOMxSAHEnEQQ903388rjN7PCQaU+efDmy1\nUfEP4C+WMdsn5fDAmKxrKE4CJ0hOZ8as9bIOy5OhBC7S+YT8QP/J4iqYcNIdicyI\nre0w8KJxwpv2J9P1vs+StcxzAq/1r6PfjhzIghxOXW0ZeBBCe6nZ0BIZyID/hNoB\nYgXBHCTdAgMBAAECggEAT3O7urSVq4VlBX31ADLkJgT6Xmw+r+ejedSxYR+RqZ9G\ntptmi63bm7C8Sugo34GL+3X7dPznh6Pb3wjVMbsAO+hSrAgBtChTnV268e0Ilb5H\n4LcCJJooQIP5ZJ2e0y6WSHc1RamXdDfxh1jeUcL+LC5wCEkWVMgWQx+5UmU1PQAI\nu0mlCJ/kVS3Ute+J6MoYupoeN3AingfrC7wrsINx7Lt0FhsNpNPuGJHVESjBXxNj\nClgs6xfKDNUVu0dFt58rMbSJcGyXf4xAGzDWFBv9S0AbRsDKXCBmImHln1MT6Obl\nU7GZhLoXoxOym+gNeSvTayNAf/zWs01inA7YcnaJgQKBgQDwMwxluH9OrszLpUbF\n0qKv7MrLts4qFDv1hvUmxh52ty3jLrCZQVxhFulcwKySyoOFjYAdgCaTVDueCR2o\nEgjNiqkTzzjlsPw1AMUmd5zzi0eFNQvzz3SY7lFbH/D5EXUd9c9eEyjE8bYUtmrx\nC3Lq3ohPT3NsCaPdrsNRSe+PIwKBgQC7fFdjnuMqOhsQTTUX2snozwp0MHmdUOOL\nxJQ3OHeHvsvHqnp/oLWgdkmeM+/kxdthPw0KtD4kPQQLzcJkiQkfju5oHA4Qkv1n\nlm5M6H77xq0gGs/lb0K4sZtysp0IkczN6qdiFBthEqlfK77+0uf61tRAr8lmds/p\n+aFLkDq7/wKBgQDU8Dx2VPgvVdFiW9QA/bmSAnbJ3/am4SdCg/EC/bH2BnBcrYCL\nbKErxTb+LiUPQQ8Vr5q7DGemRo9Pi79JxyscpGc9k4BaR+teRZ+BeZqfYYL2+U7u\nRqSUCvn+sbNb6nkMJWU/ffavmaSUeh8WL9MhmkP3I3UseuNVXF/0yXnhRwKBgGVK\nfTAuNE6pC9wXylpz8ufbi6tQUTQD8pudffIDiNiG5TOfUAVJ/zaNEaLuLmor1yVH\n2jTxQi1z5Y63AJIuUwaAwx7uIU8lCtD/PeJBLfG62efhdHZhUOvV0MT76MkrdDm/\nz+S2NkCQw37OdKbZrUkg7ZVxI18/S37+Rf08E+9jAoGBAJCfoSuVbHKVKKtpNa2U\n0KRZRT9g45pS5DoAJTSe+QtHTj+C+7IIh11Zff8+vczfBDP864exliUclaMs0QJ5\nsrSExuVIPX2wJU8ZGLs5sa5eEci7xkBDsk0j2XvTVxnhdkZDZ7AeyincVIK3bjg5\nOdvoPYeIgSi7VdFKBEBUDQFf\n-----END PRIVATE KEY-----\n",
+  "client_email": "streamlit-sheets@chiaradirittoapp.iam.gserviceaccount.com",
+  "client_id": "104183317483591249521",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/streamlit-sheets%40chiaradirittoapp.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
